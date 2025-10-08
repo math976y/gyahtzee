@@ -1,59 +1,151 @@
-let size = 100
+let size = 100;
 
-function setup(){
+function setup() {
+  createCanvas(500, 500);
+  background(9, 122, 0);
 
-  createCanvas(500,500)
-  background(220)
-  
-  console.log('player 1')
+  console.log("player 1");
+}
 
-  positions = [createVector( random(size,width-size) , random(size,height-size) )]
+let dots1 = [[0, 0]];
+let dots2 = [
+  [-1, -1],
+  [1, 1],
+];
+let dots3 = [
+  [-1, -1],
+  [0, 0],
+  [1, 1],
+];
+let dots4 = [
+  [-1, -1],
+  [-1, 1],
+  [1, -1],
+  [1, 1],
+];
+let dots5 = [
+  [-1, -1],
+  [-1, 1],
+  [0, 0],
+  [1, -1],
+  [1, 1],
+];
+let dots6 = [
+  [-1, -1],
+  [-1, 1],
+  [1, -1],
+  [1, 1],
+  [-1, 0],
+  [1, 0],
+];
 
-  for(let i = 0; i < 5; i++){
+let dots = [dots1, dots2, dots3, dots4, dots5, dots6];
 
-    let p
-    let away = false
+let rotations = [];
 
-    while( !away ){
+function drawRoll() {
+  background(9, 122, 0);
 
-      p = createVector( random(size,width-size) , random(size,height-size) )
+  positions = [];
 
-      away = true
+  if (keepPositions.length < 1) {
+    positions = [
+      createVector(random(size, width - size), random(size, height - size)),
+    ];
+  }
+  positions = concat(positions, keepPositions);
 
-      for(let j = 0; j < positions.length; j++){
-
-        if( p.dist(positions[j]) < size){
-          away = false
-        }
-        
-      }
-
-    }
-
-    append(positions,p)
-
+  for (let i = 0; i < positions.length; i++) {
+    //console.log(positions[i]);
   }
 
+  for (let i = positions.length; i < 5; i++) {
+    let p;
+    let away = false;
 
-  for(let i = 0; i < 5; i++){
+    while (!away) {
+      p = createVector(random(size, width - size), random(size, height - size));
 
-    let p = positions[i]
+      away = true;
 
-    let pr = random(PI)
+      for (let j = 0; j < positions.length; j++) {
+        if (p.dist(positions[j]) < size) {
+          away = false;
+        }
+      }
+    }
+
+    append(positions, p);
+  }
+
+  rotations = [];
+
+  rotations = concat(rotations, keepRotations);
+
+  for (let i = rotations.length; i < 5; i++) {
+    rotations[i] = random(PI);
+  }
+
+  for (let i = 0; i < 5; i++) {
+    let p = positions[i];
+
+    let pr = rotations[i];
 
     applyMatrix(1, 0, 0, 1, p.x, p.y);
 
-    rotate(pr)
+    rotate(pr);
 
-    rect(-size/2,-size/2,size)
+    fill(255);
 
-    rotate(-pr)
+    rect(-size / 2, -size / 2, size, size, 0.125 * size);
+
+    let dotArray = dots[dice[i] - 1];
+
+    for (let j = 0; j < dice[i]; j++) {
+      let dotPosition = dotArray[j];
+      let dotV = createVector(dotPosition[0], dotPosition[1]).mult(
+        (2 / 7) * size
+      );
+      fill(0);
+      circle(dotV.x, dotV.y, 0.15 * size);
+    }
+
+    rotate(-pr);
     applyMatrix(1, 0, 0, 1, -p.x, -p.y);
-
   }
-
 }
 
-function draw() {
+let saved = [0, 0, 0, 0, 0];
 
+let keepPositions = [];
+let keepRotations = [];
+
+function mousePressed() {
+  for (let i = 0; i < 5; i++) {
+    let mousePos = createVector(mouseX, mouseY);
+    let dicePos = positions[i];
+
+    if (mousePos.dist(dicePos) < size / 2) {
+      console.log(i);
+      if (saved[i] !== 1) {
+        append(keepPositions, dicePos);
+        append(keepRotations, rotations[i]);
+        saved[i] = 1;
+      } else {
+        saved[i] = 0;
+
+        for (let j = 0; j < keepRotations.length; j++) {
+          let remove = rotations[i];
+          if (keepRotations[j] == remove) {
+            for (let k = j; k < keepRotations.length; k++) {
+              keepRotations[k] = keepRotations[k + 1];
+              keepPositions[k] = keepPositions[k + 1];
+            }
+            keepRotations.length = keepRotations.length - 1;
+            keepPositions.length = keepPositions.length - 1;
+          }
+        }
+      }
+    }
+  }
 }
