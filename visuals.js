@@ -7,6 +7,8 @@ function setup() {
   console.log("player 1");
 }
 
+// your mom poo
+
 let dots1 = [[0, 0]];
 let dots2 = [
   [-1, -1],
